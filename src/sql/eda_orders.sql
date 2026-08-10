@@ -58,3 +58,54 @@ SELECT channel
 FROM 'data/raw/orders.csv'
 GROUP BY channel;
 
+-- Análise customer_id
+SELECT 
+    c.is_active, 
+    c.created_at, 
+    c.updated_at, 
+    o.customer_id, 
+    o.placed_at, 
+    o.updated_at 
+FROM 'data/raw/orders.csv' AS o 
+JOIN 'data/raw/customers.csv' AS c ON o.customer_id = c.id
+WHERE c.is_active = false AND o.placed_at > c.updated_at; 
+
+-- Analise de pedidos com datas futuras
+SELECT order_number, placed_at, created_at, updated_at
+FROM 'data/raw/orders.csv'
+WHERE NOW() < placed_at;
+
+
+-- Análise da coluna "total"
+SELECT 
+    order_number, 
+    subtotal, 
+    discount_amount, 
+    total
+FROM 'data/raw/orders.csv'
+WHERE ROUND(subtotal - discount_amount, 2) <> ROUND(total, 2);
+
+SELECT 
+    order_number, 
+    subtotal, 
+    discount_amount, 
+    total
+FROM 'data/raw/orders.csv'
+WHERE discount_amount < 0;
+
+SELECT 
+    order_number, 
+    subtotal, 
+    discount_amount, 
+    total
+FROM 'data/raw/orders.csv'
+WHERE discount_amount > subtotal;
+
+SELECT 
+    order_number, 
+    subtotal, 
+    discount_amount, 
+    total
+FROM 'data/raw/orders.csv'
+WHERE total < 0
+
