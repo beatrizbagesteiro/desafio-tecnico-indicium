@@ -1,0 +1,6 @@
+.vscode/
+data/raw/
+data/interim/
+
+.DS_Store
+Thumbs.db
