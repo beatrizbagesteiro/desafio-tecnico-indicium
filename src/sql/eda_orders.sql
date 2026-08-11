@@ -139,6 +139,7 @@ JOIN aux ON ord.id = aux.order_id
 WHERE ROUND(aux.total_bruto, 2) <> ROUND(ord.subtotal, 2);
 
 -- Retorna valores que estão acima ou abaixo dos limites calculados
+-- Precio não contabilizar as datas futuras e pedidos de clientes com cadastro desativado?
 WITH quartis AS (
     SELECT 
         QUANTILE_CONT(total, 0.25) AS q1,
