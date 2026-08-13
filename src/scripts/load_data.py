@@ -33,23 +33,16 @@ engine = get_engine()
 
 data_path = dir_atual.parent.parent / 'data' / 'raw'
 
-csv_files = []
-for f in data_path.glob('*.csv'):
-    csv_files.stem.append(f)
-
-
-def load_data(table_name:str, df:pd.DataFrame):
+for csv_file in data_path.glob('*.csv'):
+    df = pd.read_csv(csv_file)
+    table_name = csv_file.stem
     df.to_sql(
         name = table_name,
         con = engine,
         if_exists='append',
         index=False
     )
-
     logging.info(f"\nDados carregados com sucesso na tabela {table_name}.")
 
     df_check = pd.read_sql(f'SELECT * FROM {table_name}', con = engine)
     logging.info(f"\nTotal de registros: {len(df_check)}.")
-
-for name in csv_files:
-    load_data(name, )

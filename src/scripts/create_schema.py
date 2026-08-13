@@ -15,7 +15,10 @@ def get_column_type(item):
 
     try:
         int(item)
-        return 'INT'
+        if len(item) >= 14:
+            return 'VARCHAR(255)'
+        else:
+            return 'BIGINT'
     except ValueError:
         pass
 
@@ -55,20 +58,26 @@ for caminho_csv in csv_files:
     with open(caminho_csv, 'r',  encoding='utf8') as csv_file:
         reader = csv.reader(csv_file)
         header = next(reader)
-        columns_type = ['-'] * len(header)
+        columns_type = [''] * len(header)
 
         for row in reader:
             for indice,item in enumerate(row):
                 value = get_column_type(item)
 
-                if columns_type[indice] == 'DECIMAL' and value == 'INT':
+                if columns_type[indice] == 'DECIMAL' and value == 'BIGINT': # Decimal pode ser um int
                     pass
-                elif columns_type[indice] == '' and value.strip() == '':
+                elif columns_type[indice] == '' and value.strip() == '': # se for vazio, definimos com varchar
                     columns_type[indice] = 'VARCHAR(255)'
+                elif columns_type[indice] == 'VARCHAR(255)': # se era varchar, continua como varchar
+                    pass
+                elif columns_type[indice] == 'BIGINT' or columns_type[indice] == 'DECIMAL': #se era numerico e agora é varchar, define como varchar
+                    if value == 'VARCHAR(255)':
+                        columns_type[indice] = 'VARCHAR(255)'
                 else:
-                    columns_type[indice] = value
+                    if columns_type[indice] == '':
+                        columns_type[indice] = value
 
-                linhas_lidas+=1
+            linhas_lidas+=1
 
             if linhas_lidas >= limite_amostragem:
                 break

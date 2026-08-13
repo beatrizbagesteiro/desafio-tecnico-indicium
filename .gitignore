@@ -4,3 +4,6 @@ data/interim/
 
 .DS_Store
 Thumbs.dbvenv
+
+config/.env
+venv
