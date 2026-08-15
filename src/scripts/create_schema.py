@@ -37,7 +37,6 @@ def get_column_type(item):
     if item.strip() != '' or item.strip() == '':
         return 'VARCHAR(255)'
 
-
 def create_tables(table_name, columns, types):
     columns_types = []
     for column,type in zip(columns,types):
@@ -77,10 +76,10 @@ for caminho_csv in csv_files:
                     if columns_type[indice] == '':
                         columns_type[indice] = value
 
-            linhas_lidas+=1
+        linhas_lidas+=1
 
-            if linhas_lidas >= limite_amostragem:
-                break
+        if linhas_lidas >= limite_amostragem:
+            break
 
         sql_query = create_tables(caminho_csv.stem, header, columns_type)
         with file_path.open(mode='a', encoding='utf-8') as f:
