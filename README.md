@@ -24,14 +24,12 @@ desafio-tecnico/
     └── conn_db.py           <- Configuração de conexão com o banco de dados
 ```
 ## Observações e Configuração
-Variáveis de Ambiente: Para que a conexão com o banco de dados (conn_db.py) funcione corretamente, você deve criar ou editar o arquivo .env dentro da pasta config/ contendo exatamente a seguinte estrutura:
 
-Fragmento do código
-DB_USER=nome_user
-DB_PASSWORD=senha
-DB_NAME=db_name
-DB_HOST=host_name
+* **Variáveis de Ambiente:** Para que a conexão com o banco de dados (`conn_db.py`) funcione corretamente, você deve criar ou editar o arquivo `.env` dentro da pasta `config/` contendo exatamente as seguintes linhas:
+  * `DB_USER=nome_user`
+  * `DB_PASSWORD=senha`
+  * `DB_NAME=nome_db`
+  * `DB_HOST=localhost`
 
-O script principal responsável por iniciar a modelagem e carregar os dados para o banco é o src/scripts/load_data.py.
-
-Certifique-se de que os dados originais estejam descompactados dentro da pasta data/raw/ antes da execução.
+* O script principal responsável por iniciar a modelagem e carregar os dados para o banco é o `src/scripts/load_data.py`.
+* Certifique-se de que os dados originais estejam descompactados dentro da pasta `data/raw/` antes da execução.
