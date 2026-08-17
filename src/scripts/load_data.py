@@ -1,48 +1,70 @@
-from sqlalchemy import create_engine, text
-from urllib.parse import quote_plus
-import os
+"""
+Observação:
+Este projeto assume a seguinte estrutura:
+
+desafio-tecnico/
+│
+├── config/
+│   └── .env          
+│
+├── data/
+│   └── raw/           
+│
+├── notebooks/
+│
+└── src/
+    └── scripts/
+        └── load_data.py <- Arquivo atual
+    └── sql/
+    └── conn_db.py <- conexão com o bd
+"""
+import sys
 from pathlib import Path
 import pandas as pd
-from dotenv import load_dotenv
 
-import logging
-logging.basicConfig(    
-	level=logging.INFO,    
-	format='%(asctime)s - %(levelname)s - %(message)s',    
-	datefmt='%Y-%m-%d %H:%M:%S')
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+sys.path.append(str(BASE_DIR))
+from src.conn_db import get_engine
 
-# __file__ vai depender inteiramente da forma que o script é executado
-# se for digitado apenas script.py, o __file__ será script.py
-# o .resolve() garante que __file__ será o caminho absoluto
-dir_atual = Path(__file__).parent.resolve()
-env_path = dir_atual.parent.parent / 'config' / '.env'
-load_dotenv(env_path)
+def load_csv_to_db(data_path, engine):
+    if not data_path.exists():
+        print(f"Diretório de dados não encontrado no caminho: {data_path}. Verifique a estrutura informada.")
+        return
 
-user = os.getenv('DB_USER')
-password = os.getenv('DB_PASSWORD')
-database = os.getenv('DB_NAME')
-host = os.getenv('DB_HOST')
+    for csv_file in data_path.glob('*.csv'):
+        try:
+            print(f"Processando arquivo: {csv_file.name}...")
+            df = pd.read_csv(csv_file)
+            table_name = csv_file.stem
+            
+            df.to_sql(
+                name=table_name,
+                con=engine,
+                if_exists='append',
+                index=False
+            )
+            print(f"Dados carregados com sucesso na tabela {table_name}.")
 
-def get_engine():
-    logging.info(f"Conectando em {host}:5432/{database}")
-    return create_engine(
-        f"postgresql+psycopg2://{user}:{quote_plus(password)}@{host}:5432/{database}"
-    )
+            df_check = pd.read_sql(f'SELECT count(*) FROM {table_name}', con=engine)
+            total_registros = df_check.iloc[0, 0]
+            print(f"Total de registros na tabela {table_name}: {total_registros}.")
+            
+        except Exception as e:
+            print(f"Erro ao processar a tabela {csv_file.stem}: {e}")
 
-engine = get_engine()
 
-data_path = dir_atual.parent.parent / 'data' / 'raw'
+def main():
+    try:
+        data_path = BASE_DIR / 'data' / 'raw'
+        
+        engine = get_engine()
+        
+        print("Iniciando o carregamento dos arquivos CSV...")
+        load_csv_to_db(data_path, engine)
+        print("Ingestão de dados finalizado com sucesso!")
+    except Exception as e:
+        print(f"Falha na ingestão de dados: {e}")
 
-for csv_file in data_path.glob('*.csv'):
-    df = pd.read_csv(csv_file)
-    table_name = csv_file.stem
-    df.to_sql(
-        name = table_name,
-        con = engine,
-        if_exists='append',
-        index=False
-    )
-    logging.info(f"\nDados carregados com sucesso na tabela {table_name}.")
 
-    df_check = pd.read_sql(f'SELECT * FROM {table_name}', con = engine)
-    logging.info(f"\nTotal de registros: {len(df_check)}.")
+if __name__ == "__main__":
+    main()
